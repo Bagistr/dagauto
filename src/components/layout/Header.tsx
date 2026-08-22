@@ -32,32 +32,34 @@ export const Header: React.FC<HeaderProps> = ({
   return (
     <header className="sticky top-0 z-40 w-full bg-white border-b border-slate-200 shadow-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16 sm:h-20 gap-3">
+        
+        {/* Top Header Row */}
+        <div className="flex items-center justify-between h-16 sm:h-20 gap-2 sm:gap-3">
           
           {/* Logo */}
           <div 
             onClick={() => setActiveTab('home')}
-            className="flex items-center gap-3 cursor-pointer select-none group"
+            className="flex items-center gap-2 sm:gap-3 cursor-pointer select-none group shrink-0"
           >
-            <div className="flex items-center justify-center w-11 h-11 rounded-2xl bg-emerald-600 text-white shadow-md shadow-emerald-600/20 group-hover:bg-emerald-700 transition-colors">
-              <Car className="w-6 h-6" />
+            <div className="flex items-center justify-center w-10 h-10 sm:w-11 sm:h-11 rounded-2xl bg-emerald-600 text-white shadow-md shadow-emerald-600/20 group-hover:bg-emerald-700 transition-colors">
+              <Car className="w-5 h-5 sm:w-6 sm:h-6" />
             </div>
             <div>
-              <div className="flex items-center gap-1.5">
-                <span className="text-xl sm:text-2xl font-black tracking-tight text-slate-900">
+              <div className="flex items-center gap-1">
+                <span className="text-lg sm:text-2xl font-black tracking-tight text-slate-900">
                   Dag<span className="text-emerald-600">Auto</span>
                 </span>
-                <span className="text-xs font-bold px-1.5 py-0.5 rounded-md bg-slate-100 text-slate-700 border border-slate-200">
+                <span className="text-[10px] sm:text-xs font-bold px-1.5 py-0.5 rounded bg-slate-100 text-slate-700 border border-slate-200">
                   05
                 </span>
               </div>
-              <p className="text-xs text-slate-500 font-medium hidden sm:block">
+              <p className="text-[10px] sm:text-xs text-slate-500 font-medium hidden sm:block">
                 Авторынок Дагестана
               </p>
             </div>
           </div>
 
-          {/* Clean Navigation Links */}
+          {/* Desktop Navigation Links */}
           <nav className="hidden md:flex items-center gap-1.5 bg-slate-100 p-1.5 rounded-2xl">
             <button
               onClick={() => setActiveTab('home')}
@@ -120,16 +122,16 @@ export const Header: React.FC<HeaderProps> = ({
             </button>
           </nav>
 
-          {/* Right: City dropdown + Big Post button */}
-          <div className="flex items-center gap-2 sm:gap-3">
+          {/* Right Actions: City + Post button */}
+          <div className="flex items-center gap-1.5 sm:gap-3">
             {/* City Selector */}
-            <div className="flex items-center gap-1 bg-slate-100 px-3 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm text-slate-800 border border-slate-200">
-              <MapPin className="w-4 h-4 text-emerald-600 shrink-0" />
+            <div className="flex items-center gap-1 bg-slate-100 px-2 sm:px-3 py-2 rounded-xl text-xs sm:text-sm text-slate-800 border border-slate-200">
+              <MapPin className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-emerald-600 shrink-0" />
               <select
                 value={selectedCity}
                 onChange={(e) => setSelectedCity(e.target.value)}
                 aria-label="Выбор города в Республике Дагестан"
-                className="bg-transparent text-slate-900 font-bold focus:outline-none cursor-pointer pr-1"
+                className="bg-transparent text-slate-900 font-bold focus:outline-none cursor-pointer pr-1 text-xs sm:text-sm"
               >
                 {CITIES.map((c) => (
                   <option key={c} value={c} className="bg-white text-slate-900 font-medium">
@@ -142,7 +144,7 @@ export const Header: React.FC<HeaderProps> = ({
             {/* Post button */}
             <button
               onClick={onOpenNewListing}
-              className="flex items-center gap-1.5 px-4 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-bold text-white bg-emerald-600 hover:bg-emerald-700 active:scale-95 transition-all shadow-md shadow-emerald-600/20"
+              className="flex items-center gap-1.5 px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm font-bold text-white bg-emerald-600 hover:bg-emerald-700 active:scale-95 transition-all shadow-md shadow-emerald-600/20 whitespace-nowrap"
             >
               <Plus className="w-4 h-4 stroke-[3]" />
               <span className="hidden sm:inline">Подать объявление</span>
@@ -151,6 +153,70 @@ export const Header: React.FC<HeaderProps> = ({
           </div>
 
         </div>
+
+        {/* Mobile Sub-Navigation Bar (Horizontal scrollable pills directly in Header for phones) */}
+        <div className="md:hidden flex items-center gap-1.5 overflow-x-auto pb-2.5 pt-0.5 no-scrollbar">
+          <button
+            onClick={() => setActiveTab('home')}
+            className={`flex items-center gap-1 px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all border ${
+              activeTab === 'home'
+                ? 'bg-slate-900 text-white border-slate-900 shadow-sm'
+                : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100'
+            }`}
+          >
+            <Home className="w-3.5 h-3.5" />
+            <span>Главная</span>
+          </button>
+
+          <button
+            onClick={() => setActiveTab('barter')}
+            className={`flex items-center gap-1 px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all border ${
+              activeTab === 'barter'
+                ? 'bg-amber-500 text-slate-950 border-amber-500 shadow-sm'
+                : 'bg-amber-50 text-amber-900 border-amber-200 hover:bg-amber-100'
+            }`}
+          >
+            <Repeat className="w-3.5 h-3.5 text-amber-600" />
+            <span>🔄 Бартер</span>
+          </button>
+
+          <button
+            onClick={() => setActiveTab('customs')}
+            className={`flex items-center gap-1 px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all border ${
+              activeTab === 'customs'
+                ? 'bg-blue-600 text-white border-blue-600 shadow-sm'
+                : 'bg-blue-50 text-blue-900 border-blue-200 hover:bg-blue-100'
+            }`}
+          >
+            <Calculator className="w-3.5 h-3.5 text-blue-600" />
+            <span>🛃 Дотаможка</span>
+          </button>
+
+          <button
+            onClick={() => setActiveTab('murabaha')}
+            className={`flex items-center gap-1 px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all border ${
+              activeTab === 'murabaha'
+                ? 'bg-emerald-700 text-white border-emerald-700 shadow-sm'
+                : 'bg-emerald-50 text-emerald-900 border-emerald-200 hover:bg-emerald-100'
+            }`}
+          >
+            <Coins className="w-3.5 h-3.5 text-emerald-600" />
+            <span>🕌 Рассрочка</span>
+          </button>
+
+          <button
+            onClick={() => setActiveTab('sto')}
+            className={`flex items-center gap-1 px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all border ${
+              activeTab === 'sto'
+                ? 'bg-teal-700 text-white border-teal-700 shadow-sm'
+                : 'bg-teal-50 text-teal-900 border-teal-200 hover:bg-teal-100'
+            }`}
+          >
+            <ShieldCheck className="w-3.5 h-3.5 text-teal-600" />
+            <span>🛠️ СТО</span>
+          </button>
+        </div>
+
       </div>
     </header>
   );

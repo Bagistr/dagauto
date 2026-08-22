@@ -15,7 +15,11 @@ import {
   Search, 
   Car as CarIcon, 
   X,
-  Check
+  Check,
+  Repeat,
+  Calculator,
+  Coins,
+  ShieldCheck
 } from 'lucide-react';
 
 const POPULAR_BRANDS = [
@@ -91,19 +95,19 @@ export default function HomePage() {
       />
 
       {/* Main Content Area */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 pb-16 space-y-6">
+      <main className="flex-1 max-w-7xl w-full mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-6 pb-16 space-y-6">
         
         {/* ===================== HOME VIEW ===================== */}
         {activeTab === 'home' && (
           <div className="space-y-6 animate-in fade-in">
             
-            {/* Clean, Simple Search Bar */}
+            {/* Clean, Simple Search Bar + Quick Services */}
             <div className="bg-white p-4 sm:p-6 rounded-3xl border border-slate-200 shadow-sm space-y-4">
               <div className="relative">
                 <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
                 <input
                   type="text"
-                  placeholder="Поиск авто в Дагестане: Camry, Приора, Веста, Mercedes..."
+                  placeholder="Поиск авто: Camry, Приора, Веста, Mercedes..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="w-full pl-12 pr-10 py-3.5 sm:py-4 rounded-2xl bg-slate-50 border border-slate-200 text-sm sm:text-base text-slate-900 placeholder-slate-400 focus:outline-none focus:bg-white focus:border-emerald-600 focus:ring-2 focus:ring-emerald-600/10 transition-all font-medium"
@@ -118,20 +122,75 @@ export default function HomePage() {
                 )}
               </div>
 
+              {/* 4 Quick Service Buttons (Highly visible on mobile!) */}
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-1">
+                <button
+                  onClick={() => setActiveTab('barter')}
+                  className="flex items-center gap-2 p-3 rounded-2xl bg-amber-50 hover:bg-amber-100/80 border border-amber-200 text-left transition-all active:scale-95 group"
+                >
+                  <div className="p-2 rounded-xl bg-amber-500 text-slate-950 shrink-0 shadow-sm">
+                    <Repeat className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <div className="text-xs sm:text-sm font-extrabold text-amber-950">Умный бартер</div>
+                    <div className="text-[10px] text-amber-700 font-medium hidden sm:block">Обмен авто с доплатой</div>
+                  </div>
+                </button>
+
+                <button
+                  onClick={() => setActiveTab('customs')}
+                  className="flex items-center gap-2 p-3 rounded-2xl bg-blue-50 hover:bg-blue-100/80 border border-blue-200 text-left transition-all active:scale-95 group"
+                >
+                  <div className="p-2 rounded-xl bg-blue-600 text-white shrink-0 shadow-sm">
+                    <Calculator className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <div className="text-xs sm:text-sm font-extrabold text-blue-950">Дотаможка</div>
+                    <div className="text-[10px] text-blue-700 font-medium hidden sm:block">Расчёт для KG, AM, ABH</div>
+                  </div>
+                </button>
+
+                <button
+                  onClick={() => setActiveTab('murabaha')}
+                  className="flex items-center gap-2 p-3 rounded-2xl bg-emerald-50 hover:bg-emerald-100/80 border border-emerald-200 text-left transition-all active:scale-95 group"
+                >
+                  <div className="p-2 rounded-xl bg-emerald-600 text-white shrink-0 shadow-sm">
+                    <Coins className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <div className="text-xs sm:text-sm font-extrabold text-emerald-950">Рассрочка</div>
+                    <div className="text-[10px] text-emerald-700 font-medium hidden sm:block">Халяль Мурабаха 0%</div>
+                  </div>
+                </button>
+
+                <button
+                  onClick={() => setActiveTab('sto')}
+                  className="flex items-center gap-2 p-3 rounded-2xl bg-teal-50 hover:bg-teal-100/80 border border-teal-200 text-left transition-all active:scale-95 group"
+                >
+                  <div className="p-2 rounded-xl bg-teal-600 text-white shrink-0 shadow-sm">
+                    <ShieldCheck className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <div className="text-xs sm:text-sm font-extrabold text-teal-950">СТО Проверка</div>
+                    <div className="text-[10px] text-teal-700 font-medium hidden sm:block">Сервисы Махачкалы</div>
+                  </div>
+                </button>
+              </div>
+
               {/* Popular Brands Pills */}
-              <div>
+              <div className="pt-2 border-t border-slate-100">
                 <div className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">
-                  Популярные марки:
+                  Марка:
                 </div>
-                <div className="flex flex-wrap gap-2">
+                <div className="flex flex-wrap gap-1.5 sm:gap-2">
                   {POPULAR_BRANDS.map((brand) => (
                     <button
                       key={brand.value}
                       onClick={() => setSelectedBrand(brand.value)}
-                      className={`px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all border ${
+                      className={`px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-xl text-xs sm:text-sm font-bold transition-all border ${
                         selectedBrand === brand.value
                           ? 'bg-slate-900 text-white border-slate-900 shadow-sm'
-                          : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100 hover:border-slate-300'
+                          : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100'
                       }`}
                     >
                       {brand.name}
@@ -145,12 +204,12 @@ export default function HomePage() {
                 <div className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">
                   Учёт:
                 </div>
-                <div className="flex flex-wrap gap-2">
+                <div className="flex flex-wrap gap-1.5 sm:gap-2">
                   {REGISTRATIONS.map((reg) => (
                     <button
                       key={reg.value}
                       onClick={() => setSelectedReg(reg.value)}
-                      className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all border ${
+                      className={`flex items-center gap-1.5 px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-xl text-xs sm:text-sm font-bold transition-all border ${
                         selectedReg === reg.value
                           ? 'bg-emerald-600 text-white border-emerald-600 shadow-sm'
                           : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100'
@@ -188,7 +247,7 @@ export default function HomePage() {
 
             {/* Clean Grid of Cars */}
             {filteredCars.length > 0 ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
                 {filteredCars.map((car) => (
                   <CarCard
                     key={car.id}
@@ -225,7 +284,7 @@ export default function HomePage() {
         {activeTab === 'barter' && (
           <div className="space-y-4 animate-in fade-in">
             <div className="flex items-center justify-between">
-              <h1 className="text-2xl font-black text-slate-900">Умный бартер (Обмен авто)</h1>
+              <h1 className="text-xl sm:text-2xl font-black text-slate-900">Умный бартер (Обмен авто)</h1>
               <button
                 onClick={() => setActiveTab('home')}
                 className="text-xs font-bold text-slate-600 hover:text-slate-900 bg-white border border-slate-200 px-3.5 py-2 rounded-xl shadow-sm"
@@ -241,7 +300,7 @@ export default function HomePage() {
         {activeTab === 'customs' && (
           <div className="space-y-4 animate-in fade-in">
             <div className="flex items-center justify-between">
-              <h1 className="text-2xl font-black text-slate-900">Калькулятор дотаможки и утильсбора</h1>
+              <h1 className="text-xl sm:text-2xl font-black text-slate-900">Калькулятор дотаможки и утильсбора</h1>
               <button
                 onClick={() => setActiveTab('home')}
                 className="text-xs font-bold text-slate-600 hover:text-slate-900 bg-white border border-slate-200 px-3.5 py-2 rounded-xl shadow-sm"
@@ -257,7 +316,7 @@ export default function HomePage() {
         {activeTab === 'murabaha' && (
           <div className="space-y-4 animate-in fade-in">
             <div className="flex items-center justify-between">
-              <h1 className="text-2xl font-black text-slate-900">Халяль-рассрочка (Мурабаха)</h1>
+              <h1 className="text-xl sm:text-2xl font-black text-slate-900">Халяль-рассрочка (Мурабаха)</h1>
               <button
                 onClick={() => setActiveTab('home')}
                 className="text-xs font-bold text-slate-600 hover:text-slate-900 bg-white border border-slate-200 px-3.5 py-2 rounded-xl shadow-sm"
@@ -273,7 +332,7 @@ export default function HomePage() {
         {activeTab === 'sto' && (
           <div className="space-y-4 animate-in fade-in">
             <div className="flex items-center justify-between">
-              <h1 className="text-2xl font-black text-slate-900">Сеть проверенных СТО</h1>
+              <h1 className="text-xl sm:text-2xl font-black text-slate-900">Сеть проверенных СТО</h1>
               <button
                 onClick={() => setActiveTab('home')}
                 className="text-xs font-bold text-slate-600 hover:text-slate-900 bg-white border border-slate-200 px-3.5 py-2 rounded-xl shadow-sm"
