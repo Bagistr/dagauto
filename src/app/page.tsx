@@ -122,63 +122,8 @@ export default function HomePage() {
                 )}
               </div>
 
-              {/* 4 Quick Service Buttons (Highly visible on mobile!) */}
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-1">
-                <button
-                  onClick={() => setActiveTab('barter')}
-                  className="flex items-center gap-2 p-3 rounded-2xl bg-amber-50 hover:bg-amber-100/80 border border-amber-200 text-left transition-all active:scale-95 group"
-                >
-                  <div className="p-2 rounded-xl bg-amber-500 text-slate-950 shrink-0 shadow-sm">
-                    <Repeat className="w-4 h-4" />
-                  </div>
-                  <div>
-                    <div className="text-xs sm:text-sm font-extrabold text-amber-950">Умный бартер</div>
-                    <div className="text-[10px] text-amber-700 font-medium hidden sm:block">Обмен авто с доплатой</div>
-                  </div>
-                </button>
-
-                <button
-                  onClick={() => setActiveTab('customs')}
-                  className="flex items-center gap-2 p-3 rounded-2xl bg-blue-50 hover:bg-blue-100/80 border border-blue-200 text-left transition-all active:scale-95 group"
-                >
-                  <div className="p-2 rounded-xl bg-blue-600 text-white shrink-0 shadow-sm">
-                    <Calculator className="w-4 h-4" />
-                  </div>
-                  <div>
-                    <div className="text-xs sm:text-sm font-extrabold text-blue-950">Дотаможка</div>
-                    <div className="text-[10px] text-blue-700 font-medium hidden sm:block">Расчёт для KG, AM, ABH</div>
-                  </div>
-                </button>
-
-                <button
-                  onClick={() => setActiveTab('murabaha')}
-                  className="flex items-center gap-2 p-3 rounded-2xl bg-emerald-50 hover:bg-emerald-100/80 border border-emerald-200 text-left transition-all active:scale-95 group"
-                >
-                  <div className="p-2 rounded-xl bg-emerald-600 text-white shrink-0 shadow-sm">
-                    <Coins className="w-4 h-4" />
-                  </div>
-                  <div>
-                    <div className="text-xs sm:text-sm font-extrabold text-emerald-950">Рассрочка</div>
-                    <div className="text-[10px] text-emerald-700 font-medium hidden sm:block">Халяль Мурабаха 0%</div>
-                  </div>
-                </button>
-
-                <button
-                  onClick={() => setActiveTab('sto')}
-                  className="flex items-center gap-2 p-3 rounded-2xl bg-teal-50 hover:bg-teal-100/80 border border-teal-200 text-left transition-all active:scale-95 group"
-                >
-                  <div className="p-2 rounded-xl bg-teal-600 text-white shrink-0 shadow-sm">
-                    <ShieldCheck className="w-4 h-4" />
-                  </div>
-                  <div>
-                    <div className="text-xs sm:text-sm font-extrabold text-teal-950">СТО Проверка</div>
-                    <div className="text-[10px] text-teal-700 font-medium hidden sm:block">Сервисы Махачкалы</div>
-                  </div>
-                </button>
-              </div>
-
               {/* Popular Brands Pills */}
-              <div className="pt-2 border-t border-slate-100">
+              <div className="pt-1">
                 <div className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">
                   Марка:
                 </div>
