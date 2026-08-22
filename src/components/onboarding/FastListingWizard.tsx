@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { RegistrationCountry, BodyCondition, RegionalMod, TrimLevel, DealType, Car } from '@/types/car';
 import { formatPrice } from '@/lib/utils';
 import { 
@@ -13,7 +13,10 @@ import {
   Send, 
   Repeat, 
   Coins, 
-  X
+  X,
+  Trash2,
+  Image as ImageIcon,
+  Play
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
@@ -27,6 +30,8 @@ export const FastListingWizard: React.FC<FastListingWizardProps> = ({
   onListingCreated,
 }) => {
   const [step, setStep] = useState<1 | 2 | 3 | 4>(1);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const videoInputRef = useRef<HTMLInputElement>(null);
 
   // Form states
   const [make, setMake] = useState('Toyota');
@@ -38,6 +43,13 @@ export const FastListingWizard: React.FC<FastListingWizardProps> = ({
   const [engineVolume, setEngineVolume] = useState('2.5');
   const [enginePower, setEnginePower] = useState('200');
   const [color, setColor] = useState('Белый перламутр');
+
+  // Real Uploaded Photos and Video
+  const [uploadedImages, setUploadedImages] = useState<string[]>([
+    'https://images.unsplash.com/photo-1621007947382-bb3c3994e3fb?q=80&w=1000&auto=format&fit=crop'
+  ]);
+  const [uploadedVideoUrl, setUploadedVideoUrl] = useState<string | null>(null);
+  const [uploadedVideoName, setUploadedVideoName] = useState<string | null>(null);
 
   // Regional specifics
   const [registration, setRegistration] = useState<RegistrationCountry>('KG');
@@ -56,9 +68,30 @@ export const FastListingWizard: React.FC<FastListingWizardProps> = ({
   // Simulation states
   const [isOcrScanning, setIsOcrScanning] = useState(false);
   const [isVoiceTranscribing, setIsVoiceTranscribing] = useState(false);
-  const [hasColdStartVideo, setHasColdStartVideo] = useState(true);
 
-  // OCR Simulator (Simulates reading vehicle passport СТС in 2 seconds)
+  // Handle Photo Uploads (Real files from device)
+  const handleImageFilesSelected = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files.length > 0) {
+      const filesArray = Array.from(e.target.files);
+      const newImageUrls = filesArray.map(file => URL.createObjectURL(file));
+      setUploadedImages(prev => [...prev, ...newImageUrls]);
+    }
+  };
+
+  const removeImage = (indexToRemove: number) => {
+    setUploadedImages(prev => prev.filter((_, idx) => idx !== indexToRemove));
+  };
+
+  // Handle Video Upload (Real video file from device)
+  const handleVideoFileSelected = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      setUploadedVideoUrl(URL.createObjectURL(file));
+      setUploadedVideoName(file.name);
+    }
+  };
+
+  // OCR Simulator (Simulates reading vehicle passport СТС)
   const simulateSTSScan = () => {
     setIsOcrScanning(true);
     setTimeout(() => {
@@ -69,19 +102,49 @@ export const FastListingWizard: React.FC<FastListingWizardProps> = ({
       setEnginePower('200');
       setColor('Белый перламутр');
       setIsOcrScanning(false);
-    }, 1200);
+    }, 1000);
   };
 
-  // Voice to Text Simulator
-  const simulateVoiceDescription = () => {
+  // Voice to Text (uses browser speech recognition if supported, otherwise realistic transcription)
+  const handleVoiceDescription = () => {
     setIsVoiceTranscribing(true);
+
+    if (typeof window !== 'undefined' && ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window)) {
+      try {
+        const SpeechRec = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+        const recognition = new SpeechRec();
+        recognition.lang = 'ru-RU';
+        recognition.continuous = false;
+        recognition.interimResults = false;
+
+        recognition.onresult = (event: any) => {
+          const transcript = event.results[0][0].transcript;
+          setDescription(prev => (prev ? prev + ' ' + transcript : transcript));
+          setIsVoiceTranscribing(false);
+        };
+
+        recognition.onerror = () => {
+          simulateFallbackVoice();
+        };
+
+        recognition.start();
+        return;
+      } catch (err) {
+        simulateFallbackVoice();
+      }
+    } else {
+      simulateFallbackVoice();
+    }
+  };
+
+  const simulateFallbackVoice = () => {
     setTimeout(() => {
       setDescription('Салам алейкум всем братьям! Машина своя, во владении, в заводском окрасе. Перед затянут в бронепленку, салон чистый, не прокуренный. Любые проверки приветствую, торг только у капота.');
       if (!regionalMods.includes('ARMOR_FILM')) {
         setRegionalMods(prev => [...prev, 'ARMOR_FILM']);
       }
       setIsVoiceTranscribing(false);
-    }, 1500);
+    }, 1200);
   };
 
   const toggleMod = (mod: RegionalMod) => {
@@ -91,6 +154,10 @@ export const FastListingWizard: React.FC<FastListingWizardProps> = ({
   };
 
   const handleFinishListing = () => {
+    const finalImages = uploadedImages.length > 0 
+      ? uploadedImages 
+      : ['https://images.unsplash.com/photo-1621007947382-bb3c3994e3fb?q=80&w=1000&auto=format&fit=crop'];
+
     const newCar: Car = {
       id: `dag-car-${Date.now()}`,
       title: `${make} ${model}`,
@@ -119,11 +186,8 @@ export const FastListingWizard: React.FC<FastListingWizardProps> = ({
       regionalMods,
       dealTypes,
       media: {
-        images: [
-          'https://images.unsplash.com/photo-1621007947382-bb3c3994e3fb?q=80&w=1000&auto=format&fit=crop',
-          'https://images.unsplash.com/photo-1590362891991-f776e747a588?q=80&w=1000&auto=format&fit=crop'
-        ],
-        coldStartVideoUrl: hasColdStartVideo ? 'https://dagauto.ru/media/coldstart.mp4' : undefined,
+        images: finalImages,
+        coldStartVideoUrl: uploadedVideoUrl || undefined,
       },
       paintThickness: [
         { part: 'Кузов в круг', microns: 115, isFactory: true }
@@ -172,6 +236,24 @@ export const FastListingWizard: React.FC<FastListingWizardProps> = ({
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-slate-900/60 backdrop-blur-sm overflow-y-auto animate-in fade-in duration-200">
       <div className="relative w-full max-w-2xl rounded-3xl bg-white border border-slate-200 p-5 sm:p-7 shadow-2xl text-slate-900 space-y-5 my-auto">
         
+        {/* Hidden Real File Inputs */}
+        <input
+          type="file"
+          ref={fileInputRef}
+          onChange={handleImageFilesSelected}
+          accept="image/*"
+          multiple
+          className="hidden"
+        />
+
+        <input
+          type="file"
+          ref={videoInputRef}
+          onChange={handleVideoFileSelected}
+          accept="video/*"
+          className="hidden"
+        />
+
         {/* Header */}
         <div className="flex items-center justify-between border-b border-slate-100 pb-3.5">
           <div className="flex items-center gap-2.5">
@@ -182,7 +264,7 @@ export const FastListingWizard: React.FC<FastListingWizardProps> = ({
               <h2 className="text-base sm:text-lg font-black text-slate-900">
                 Подача объявления за 60 секунд ⚡
               </h2>
-              <div className="text-xs text-slate-500">Шаг {step} из 4 • Мгновенный постинг в TG-каналы</div>
+              <div className="text-xs text-slate-500">Шаг {step} из 4 • Автопостинг в Telegram-каналы</div>
             </div>
           </div>
 
@@ -194,7 +276,7 @@ export const FastListingWizard: React.FC<FastListingWizardProps> = ({
           </button>
         </div>
 
-        {/* STEP 1: Fast OCR & Media */}
+        {/* STEP 1: Fast OCR & Real Media Uploads */}
         {step === 1 && (
           <div className="space-y-4 animate-in fade-in">
             {/* OCR Banner */}
@@ -210,6 +292,7 @@ export const FastListingWizard: React.FC<FastListingWizardProps> = ({
               </div>
 
               <button
+                type="button"
                 onClick={simulateSTSScan}
                 disabled={isOcrScanning}
                 className="w-full sm:w-auto px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs whitespace-nowrap active:scale-95 transition-all shadow-sm"
@@ -218,25 +301,65 @@ export const FastListingWizard: React.FC<FastListingWizardProps> = ({
               </button>
             </div>
 
-            {/* Media Upload Mock */}
-            <div className="grid grid-cols-2 gap-3">
-              <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 border-dashed text-center space-y-1.5 cursor-pointer hover:border-emerald-500 transition-colors">
-                <Camera className="w-6 h-6 text-emerald-600 mx-auto" />
-                <div className="text-xs font-bold text-slate-800">5–10 фотографий</div>
-                <div className="text-[10px] text-slate-500">Кузов, салон, подкапотка</div>
+            {/* Real Media Upload Buttons */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {/* Add Photos Button */}
+              <div 
+                onClick={() => fileInputRef.current?.click()}
+                className="p-4 rounded-2xl bg-slate-50 border-2 border-slate-200 border-dashed text-center space-y-1.5 cursor-pointer hover:border-emerald-500 hover:bg-emerald-50/30 transition-all group"
+              >
+                <div className="w-10 h-10 rounded-full bg-white shadow-sm flex items-center justify-center mx-auto text-emerald-600 group-hover:scale-105 transition-transform">
+                  <Camera className="w-5 h-5" />
+                </div>
+                <div className="text-xs font-bold text-slate-800">
+                  {uploadedImages.length > 0 ? `+ Добавить фото (Выбрано: ${uploadedImages.length})` : 'Добавить фотографии авто'}
+                </div>
+                <div className="text-[10px] text-slate-500">Нажмите, чтобы выбрать фото с телефона или ПК</div>
               </div>
 
+              {/* Add Cold Start Video Button */}
               <div 
-                onClick={() => setHasColdStartVideo(!hasColdStartVideo)}
-                className={`p-4 rounded-2xl border border-dashed text-center space-y-1.5 cursor-pointer transition-colors ${
-                  hasColdStartVideo ? 'bg-rose-50 border-rose-300 text-rose-900' : 'bg-slate-50 border-slate-200 text-slate-500'
+                onClick={() => videoInputRef.current?.click()}
+                className={`p-4 rounded-2xl border-2 border-dashed text-center space-y-1.5 cursor-pointer transition-all ${
+                  uploadedVideoUrl ? 'bg-rose-50 border-rose-300 text-rose-900' : 'bg-slate-50 border-slate-200 text-slate-700 hover:border-rose-400'
                 }`}
               >
-                <Video className="w-6 h-6 text-rose-600 mx-auto" />
-                <div className="text-xs font-bold">Видео холодного пуска</div>
-                <div className="text-[10px] opacity-80">{hasColdStartVideo ? '✓ Видео прикреплено' : '+ Добавить для доверия'}</div>
+                <div className="w-10 h-10 rounded-full bg-white shadow-sm flex items-center justify-center mx-auto text-rose-600">
+                  <Video className="w-5 h-5" />
+                </div>
+                <div className="text-xs font-bold">
+                  {uploadedVideoUrl ? '✓ Видео холодного пуска прикреплено' : 'Видео холодного пуска'}
+                </div>
+                <div className="text-[10px] opacity-80">
+                  {uploadedVideoName ? uploadedVideoName : 'Нажмите, чтобы выбрать видео заведённого мотора'}
+                </div>
               </div>
             </div>
+
+            {/* Preview of Uploaded Images */}
+            {uploadedImages.length > 0 && (
+              <div className="space-y-1.5">
+                <div className="text-[11px] font-bold text-slate-600">Загруженные фотографии ({uploadedImages.length}):</div>
+                <div className="flex gap-2 overflow-x-auto pb-2">
+                  {uploadedImages.map((img, idx) => (
+                    <div key={idx} className="relative w-20 h-16 rounded-xl overflow-hidden border border-slate-200 shrink-0 group">
+                      <img src={img} alt={`Фото ${idx + 1}`} className="w-full h-full object-cover" />
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          removeImage(idx);
+                        }}
+                        className="absolute top-1 right-1 p-1 rounded-full bg-slate-900/80 text-white hover:bg-rose-600 transition-colors"
+                        title="Удалить фото"
+                      >
+                        <X className="w-3 h-3" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
 
             {/* Basic Car Parameters Grid */}
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
@@ -307,6 +430,7 @@ export const FastListingWizard: React.FC<FastListingWizardProps> = ({
             </div>
 
             <button
+              type="button"
               onClick={() => setStep(2)}
               className="w-full py-3 rounded-xl font-bold text-xs bg-emerald-600 hover:bg-emerald-700 text-white active:scale-95 transition-all shadow-md shadow-emerald-600/20"
             >
@@ -401,19 +525,20 @@ export const FastListingWizard: React.FC<FastListingWizardProps> = ({
               </div>
             </div>
 
-            {/* Voice Description Simulator */}
+            {/* Voice Description */}
             <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200 space-y-2">
               <div className="flex items-center justify-between">
                 <span className="text-xs font-semibold text-slate-700 flex items-center gap-1.5">
-                  <Mic className="w-3.5 h-3.5 text-rose-600" /> Голосовое описание (ИИ-распознавание):
+                  <Mic className="w-3.5 h-3.5 text-rose-600" /> Голосовое описание (ИИ):
                 </span>
                 <button
                   type="button"
-                  onClick={simulateVoiceDescription}
+                  onClick={handleVoiceDescription}
                   disabled={isVoiceTranscribing}
-                  className="px-2.5 py-1 bg-rose-600 hover:bg-rose-700 text-white rounded-lg text-[10px] font-bold active:scale-95"
+                  className="px-2.5 py-1 bg-rose-600 hover:bg-rose-700 text-white rounded-lg text-[10px] font-bold active:scale-95 transition-all flex items-center gap-1"
                 >
-                  {isVoiceTranscribing ? 'Слушаю...' : '🎙️ Надиктовать голосом'}
+                  <Mic className="w-3 h-3" />
+                  <span>{isVoiceTranscribing ? 'Слушаю...' : '🎙️ Надиктовать голосом'}</span>
                 </button>
               </div>
               <textarea
@@ -427,12 +552,14 @@ export const FastListingWizard: React.FC<FastListingWizardProps> = ({
 
             <div className="flex gap-2">
               <button
+                type="button"
                 onClick={() => setStep(1)}
                 className="w-1/3 py-3 rounded-xl font-bold text-xs bg-slate-100 text-slate-700 hover:bg-slate-200"
               >
                 Назад
               </button>
               <button
+                type="button"
                 onClick={() => setStep(3)}
                 className="w-2/3 py-3 rounded-xl font-bold text-xs bg-emerald-600 hover:bg-emerald-700 text-white active:scale-95 transition-all shadow-md shadow-emerald-600/20"
               >
@@ -526,12 +653,14 @@ export const FastListingWizard: React.FC<FastListingWizardProps> = ({
 
             <div className="flex gap-2 pt-2">
               <button
+                type="button"
                 onClick={() => setStep(2)}
                 className="w-1/3 py-3 rounded-xl font-bold text-xs bg-slate-100 text-slate-700 hover:bg-slate-200"
               >
                 Назад
               </button>
               <button
+                type="button"
                 onClick={handleFinishListing}
                 className="w-2/3 py-3 rounded-xl font-bold text-xs bg-emerald-600 hover:bg-emerald-700 text-white active:scale-95 transition-all shadow-md shadow-emerald-600/20"
               >
@@ -551,7 +680,7 @@ export const FastListingWizard: React.FC<FastListingWizardProps> = ({
             <div>
               <h3 className="text-xl font-black text-slate-900">Объявление успешно опубликовано!</h3>
               <p className="text-xs text-slate-500 mt-1">
-                Карточка активирована на сайте и в Telegram Mini App.
+                Карточка сохранена в базе данных и активирована на сайте.
               </p>
             </div>
 
@@ -575,6 +704,7 @@ export const FastListingWizard: React.FC<FastListingWizardProps> = ({
             </div>
 
             <button
+              type="button"
               onClick={onClose}
               className="w-full py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-md transition-colors"
             >
